@@ -1,6 +1,9 @@
 package jsonfieldrename
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 type TestEntity struct {
 	MySimpleKey string
@@ -17,16 +20,22 @@ func Test_All(t *testing.T) {
 		MyIntField:  1,
 	}
 
-	expectedResult := `{"renamed":"test","renamed":1}`
-
-	result, err := Marshal(entity, simpleRenamer)
-	if err != nil {
-		t.Error("Error received from marshall")
-		t.FailNow()
+	cases := []struct{
+		rename func(string) string
+		expected string
+	}{
+		{simpleRenamer, `{"renamed":"test","renamed":1}`},
+		{strings.ToUpper, `{"MYSIMPLEKEY":"test","MYINTFIELD":1}`},
 	}
 
-	if string(result) != expectedResult {
-		t.Errorf("Expected %s; Got %s", expectedResult, result)
+	for i, tc := range cases {
+		result, err := Marshal(entity, tc.rename)
+		if err != nil {
+			t.Errorf("(%d) Error received from marshall", i)
+			t.FailNow()
+		}
+		if string(result) != tc.expected {
+			t.Errorf("(%d) Expected %s; Got %s", i, tc.expected, result)
+		}	
 	}
-
 }

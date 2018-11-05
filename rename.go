@@ -21,7 +21,7 @@ func Marshal(entity interface{}, renamer func(string) string) ([]byte, error) {
 	}
 
 	s := string(b)
-	re := regexp.MustCompile(`"([^"]*?[^"]*?)":`)
+	re := regexp.MustCompile(`"([^"]+)":`)
 	new := re.ReplaceAllStringFunc(s, reQuote(renamer))
 
 	return []byte(new), err
